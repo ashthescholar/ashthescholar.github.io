@@ -40,7 +40,7 @@
       background-color: var(--cream);
       color: var(--black);
       line-height: 1.6;
-      cursor: none;
+      cursor: none; /* Default state for cursor is custom */
       overflow-x: hidden;
     }
     
@@ -155,6 +155,21 @@
       transform: translateY(-2px);
     }
 
+    .menu-toggle {
+      display: none;
+      flex-direction: column;
+      cursor: pointer;
+      gap: 4px;
+    }
+
+    .menu-toggle span {
+      display: block;
+      width: 25px;
+      height: 3px;
+      background-color: var(--white);
+      border-radius: 2px;
+    }
+
     /*-------------------------
       Hero with Animated Text
     -------------------------*/
@@ -250,32 +265,24 @@
       font-size: 0.9rem;
     }
 
-        display: none !important;
-  }
-}
-	@media (hover: none) or (pointer: coarse) {
-  	 body {
-    cursor: auto !important;
-  }
-  .cursor-orb {
-    display: none !important;
-  }
-		    }
-    @media (max-width: 768px) {
-      .card-grid {
-        grid-template-columns: 1fr;
-      }
+    /*-------------------------
+      Responsive & Device-Specific Styles
+    -------------------------*/
 
-      /* Hide Custom Cursor */
+    /* Hide custom cursor on touch devices (where hover is not supported) */
+    @media (hover: none) or (pointer: coarse) {
       body {
         cursor: auto !important;
       }
-
       .cursor-orb {
         display: none !important;
       }
+    }
+    
+    /* Responsive styles for small screens */
+    @media (max-width: 768px) {
+      .card-grid { grid-template-columns: 1fr; }
 
-      /* Responsive Navbar */
       nav {
         position: absolute;
         top: 70px;
@@ -286,8 +293,6 @@
         width: 200px;
         display: none;
         padding: 1rem 0;
-        border-radius: 0 0 0 10px;
-        /* Optional: adds a nice curve */
       }
 
       nav a {
@@ -295,7 +300,6 @@
         border-radius: 0;
         display: block;
         border: none;
-        width: 100%;
       }
 
       nav.active {
@@ -323,7 +327,14 @@
     <div class="logo-circle">
       <img src="https://files.catbox.moe/6u2wr6.png" alt="Cuberootinc Logo" />
     </div>
-    <nav>
+
+    <div class="menu-toggle" id="menu-toggle">
+      <span></span>
+      <span></span>
+      <span></span>
+    </div>
+
+    <nav id="nav-links">
       <a href="/"><i class="fas fa-house"></i> Home</a>
       <a href="/about"><i class="fas fa-users"></i> About</a>
       <a href="/register"><i class="fas fa-pen"></i> Register</a>
@@ -375,6 +386,8 @@
       gsap.registerPlugin(ScrollTrigger);
 
       // --- Cursor ---
+      // We check for touch device NOT with JS, but with CSS @media (hover: none)
+      // This is more reliable. The JS will run but the element it targets will be hidden.
       const cursorOrb = document.querySelector('.cursor-orb');
       const interactiveElements = document.querySelectorAll('.card, .btn, nav a, .logo-circle');
       gsap.set(cursorOrb, { xPercent: -50, yPercent: -50 });
@@ -471,6 +484,12 @@
         // Initialize all the site's main animations
         initSite();
     };
+  </script>
+
+  <script>
+    document.getElementById("menu-toggle").addEventListener("click", () => {
+      document.getElementById("nav-links").classList.toggle("active");
+    });
   </script>
 </body>
 </html>
