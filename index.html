@@ -384,46 +384,48 @@
   <script>
     gsap.registerPlugin(ScrollTrigger);
 
-    // Images for the preloader leaves (only two variations)
-    const preloaderLeafImages = [
-        'https://files.catbox.moe/hq3afs.png',
-        'https://files.catbox.moe/yhnfhg.png'
-    ];
-
-    // Images for the hero section leaves (same two variations)
-    const heroLeafImages = [
+    const leafImages = [
         'https://files.catbox.moe/hq3afs.png',
         'https://files.catbox.moe/yhnfhg.png'
     ];
 
 
-    // --- PRELOADER LEAF ANIMATION (FAST PILING) ---
+    // --- PRELOADER LEAF ANIMATION (CONTINUOUS FALLING) ---
     function animatePreloaderLeaf(leaf) {
-        const fallDuration = gsap.utils.random(2.5, 4.5);
+        const fallDuration = gsap.utils.random(3, 5); // A bit faster for a preloader
         const startX = gsap.utils.random(-50, window.innerWidth + 50);
-        const endX = gsap.utils.random(0, window.innerWidth);
+        const endX = startX + gsap.utils.random(-200, 200);
         const rotation = gsap.utils.random(0, 360);
         const endRotation = rotation + gsap.utils.random(-600, 600);
         const startSize = gsap.utils.random(0.7, 1.5);
-        
-        // Make preloader leaves rest lower
-        const pileHeight = window.innerHeight - (gsap.utils.random(20, 120) * startSize); 
 
         gsap.set(leaf, { x: startX, y: -150, scale: startSize, rotation: rotation, width: 55, height: 55 });
-        gsap.to(leaf, { y: pileHeight, x: endX, rotation: endRotation, duration: fallDuration, ease: "power1.in" });
+        
+        // Animate the leaf to fall completely through the screen
+        gsap.to(leaf, {
+            y: window.innerHeight + 150, // End position is below the viewport
+            x: endX,
+            rotation: endRotation,
+            duration: fallDuration,
+            ease: "power1.in",
+            onComplete: () => {
+                // Restart the animation from the top once it's finished
+                animatePreloaderLeaf(leaf);
+            }
+        });
     }
 
     function createPreloaderLeaves() {
         const container = document.querySelector('.preloader-leaves-container');
         if (!container) return;
-        const numberOfLeaves = 85;
+        const numberOfLeaves = 40; // Reduced number for a falling effect, not piling
         for (let i = 0; i < numberOfLeaves; i++) {
             const leaf = document.createElement('div');
             leaf.classList.add('preloader-leaf');
-            const randomImage = preloaderLeafImages[Math.floor(Math.random() * preloaderLeafImages.length)];
+            const randomImage = leafImages[Math.floor(Math.random() * leafImages.length)];
             leaf.style.backgroundImage = `url('${randomImage}')`;
             container.appendChild(leaf);
-            gsap.delayedCall(gsap.utils.random(0, 2.5), () => animatePreloaderLeaf(leaf));
+            animatePreloaderLeaf(leaf); // Start each leaf's animation
         }
     }
 
@@ -448,16 +450,16 @@
         for (let i = 0; i < numberOfLeaves; i++) {
             const leaf = document.createElement('div');
             leaf.classList.add('leaf');
-            const randomImage = heroLeafImages[Math.floor(Math.random() * heroLeafImages.length)]; // Uses the updated heroLeafImages
+            const randomImage = leafImages[Math.floor(Math.random() * leafImages.length)];
             leaf.style.backgroundImage = `url('${randomImage}')`;
             container.appendChild(leaf);
             animateHeroLeaf(leaf);
         }
     }
 
-    // --- MAIN SITE INITIALIZATION (CALLED AFTER PRELOADER) ---
+    // --- MAIN SITE INITIALIZATION ---
     function initSite() {
-        createHeroLeaves(); // Start hero leaves only after preloader is gone
+        createHeroLeaves();
         const cursorOrb = document.querySelector('.cursor-orb');
         const interactiveElements = document.querySelectorAll('.card, .btn, nav a, .logo-circle');
         gsap.set(cursorOrb, { xPercent: -50, yPercent: -50 });
@@ -496,17 +498,17 @@
     }
 
     // --- EXECUTION FLOW ---
-    createPreloaderLeaves(); // Start preloader leaves instantly
+    createPreloaderLeaves();
     window.addEventListener('load', () => {
         const preloader = document.querySelector('.preloader');
         gsap.to(preloader, {
             y: "-100%",
             duration: 1.2,
             ease: "power2.inOut",
-            delay: 2.0, // REQUIRED 2-SECOND WAIT after page load
+            delay: 2.0,
             onComplete: () => {
                 preloader.style.display = 'none';
-                initSite(); // Initialize main site animations after preloader is gone
+                initSite();
             }
         });
     });
