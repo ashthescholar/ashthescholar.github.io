@@ -44,7 +44,7 @@
       overflow-x: hidden;
     }
     
-    /* --- NEW PRELOADER STYLES --- */
+    /* --- PRELOADER STYLES --- */
     .preloader {
       position: fixed;
       top: 0;
@@ -56,11 +56,30 @@
       justify-content: center;
       align-items: center;
       z-index: 99999;
+      overflow: hidden;
     }
     .preloader-logo {
       width: 80px;
       height: 120px;
+      position: relative;
+      z-index: 10;
     }
+    .preloader-leaves-container {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        z-index: 5;
+    }
+    .preloader-leaf {
+        position: absolute;
+        top: -15%; 
+        background-size: contain;
+        background-repeat: no-repeat;
+    }
+
 
     /*-------------------------
       Custom Cursor
@@ -211,6 +230,28 @@
     .word-cuberootinc {
       font-size: clamp(2rem, 9vw, 8rem) !important;
     }
+    
+    /* --- HERO FALLING LEAVES STYLES --- */
+    .leaves-container {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        overflow: hidden;
+        z-index: 2; 
+    }
+
+    .leaf {
+        position: absolute;
+        top: -10%;
+        width: 60px;
+        height: 60px;
+        background-size: contain;
+        background-repeat: no-repeat;
+        opacity: 0;
+    }
 
 
     /*-------------------------
@@ -268,55 +309,27 @@
     /*-------------------------
       Responsive & Device-Specific Styles
     -------------------------*/
-
-    /* Hide custom cursor on touch devices (where hover is not supported) */
     @media (hover: none) or (pointer: coarse) {
-      body {
-        cursor: auto !important;
-      }
-      .cursor-orb {
-        display: none !important;
-      }
+      body { cursor: auto !important; }
+      .cursor-orb { display: none !important; }
     }
-    
-    /* Responsive styles for small screens */
     @media (max-width: 768px) {
       .card-grid { grid-template-columns: 1fr; }
-
       nav {
-        position: absolute;
-        top: 70px;
-        right: 0;
-        background: rgba(0, 0, 0, 0.85);
-        flex-direction: column;
-        gap: 0;
-        width: 200px;
-        display: none;
-        padding: 1rem 0;
+        position: absolute; top: 70px; right: 0; background: rgba(0, 0, 0, 0.85);
+        flex-direction: column; gap: 0; width: 200px; display: none; padding: 1rem 0;
       }
-
-      nav a {
-        padding: 0.8rem 1.2rem;
-        border-radius: 0;
-        display: block;
-        border: none;
-      }
-
-      nav.active {
-        display: flex;
-      }
-
-      .menu-toggle {
-        display: flex;
-      }
+      nav a { padding: 0.8rem 1.2rem; border-radius: 0; display: block; border: none; }
+      nav.active { display: flex; }
+      .menu-toggle { display: flex; }
     }
-
   </style>
 </head>
 <body>
   <!-- PRELOADER -->
   <div class="preloader">
     <img src="https://files.catbox.moe/6u2wr6.png" alt="Cuberootinc Logo" class="preloader-logo"/>
+    <div class="preloader-leaves-container"></div>
   </div>
   
   <!-- CUSTOM CURSOR -->
@@ -324,16 +337,8 @@
 
   <!-- NAVBAR -->
   <header class="glass-card-nav">
-    <div class="logo-circle">
-      <img src="https://files.catbox.moe/6u2wr6.png" alt="Cuberootinc Logo" />
-    </div>
-
-    <div class="menu-toggle" id="menu-toggle">
-      <span></span>
-      <span></span>
-      <span></span>
-    </div>
-
+    <div class="logo-circle"> <img src="https://files.catbox.moe/6u2wr6.png" alt="Cuberootinc Logo" /> </div>
+    <div class="menu-toggle" id="menu-toggle"> <span></span> <span></span> <span></span> </div>
     <nav id="nav-links">
       <a href="/"><i class="fas fa-house"></i> Home</a>
       <a href="/about"><i class="fas fa-users"></i> About</a>
@@ -343,11 +348,10 @@
 
   <!-- HERO IMAGE SECTION -->
   <section class="hero-image-section">
+      <div class="leaves-container"></div>
       <div class="hero-text-container">
-          <h1>Hackathon</h1>
-          <h1>Students</h1>
-          <h1 class="word-fresh-ideas">Fresh Ideas.</h1>
-          <h1 class="word-cuberootinc">cuberootinc.</h1>
+          <h1>Hackathon</h1> <h1>Students</h1>
+          <h1 class="word-fresh-ideas">Fresh Ideas.</h1> <h1 class="word-cuberootinc">cuberootinc.</h1>
       </div>
   </section>
 
@@ -370,10 +374,7 @@
         </div>
       </div>
     </main>
-
-    <footer>
-      © 2025 Cuberootinc. | Built by students at DPS Mysore
-    </footer>
+    <footer> © 2025 Cuberootinc. | Built by students at DPS Mysore </footer>
   </div>
 
   <!-- GSAP + ScrollTrigger -->
@@ -381,114 +382,137 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
 
   <script>
-    // This function initializes all the main site animations
-    function initSite() {
-      gsap.registerPlugin(ScrollTrigger);
+    gsap.registerPlugin(ScrollTrigger);
 
-      // --- Cursor ---
-      // We check for touch device NOT with JS, but with CSS @media (hover: none)
-      // This is more reliable. The JS will run but the element it targets will be hidden.
-      const cursorOrb = document.querySelector('.cursor-orb');
-      const interactiveElements = document.querySelectorAll('.card, .btn, nav a, .logo-circle');
-      gsap.set(cursorOrb, { xPercent: -50, yPercent: -50 });
-      const pos = { x: window.innerWidth / 2, y: window.innerHeight / 2 };
-      const mouse = { x: pos.x, y: pos.y };
-      const speed = 0.1;
-      const xSet = gsap.quickSetter(cursorOrb, "x", "px");
-      const ySet = gsap.quickSetter(cursorOrb, "y", "px");
-      window.addEventListener("mousemove", e => { mouse.x = e.x; mouse.y = e.y; });
-      gsap.ticker.add(() => {
-        const dt = 1.0 - Math.pow(1.0 - speed, gsap.ticker.deltaRatio()); 
-        pos.x += (mouse.x - pos.x) * dt;
-        pos.y += (mouse.y - pos.y) * dt;
-        xSet(pos.x); ySet(pos.y);
-      });
-      interactiveElements.forEach(el => {
-        el.addEventListener('mouseenter', () => cursorOrb.classList.add('hovered'));
-        el.addEventListener('mouseleave', () => cursorOrb.classList.remove('hovered'));
-      });
+    // Images for the preloader leaves (only two variations)
+    const preloaderLeafImages = [
+        'https://files.catbox.moe/hq3afs.png',
+        'https://files.catbox.moe/yhnfhg.png'
+    ];
 
-      // --- "Snap-to-Word" Hero Animation ---
-      const heroWords = gsap.utils.toArray(".hero-text-container h1");
-      const scrollAnim = gsap.timeline();
+    // Images for the hero section leaves (same two variations)
+    const heroLeafImages = [
+        'https://files.catbox.moe/hq3afs.png',
+        'https://files.catbox.moe/yhnfhg.png'
+    ];
 
-      heroWords.forEach((word, index) => {
-          scrollAnim
-              .add(`word-${index}-start`)
-              .fromTo(word, 
-                  { opacity: 0, y: 40 }, 
-                  { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" }
-              )
-              .to(word, 
-                  { opacity: 0, y: -40, duration: 0.5, ease: "power2.in" },
-                  "+=0.7"
-              );
-      });
-      
-      ScrollTrigger.create({
-          trigger: ".hero-image-section",
-          start: "top top",
-          end: "+=300%", 
-          pin: true,
-          scrub: 1,
-          animation: scrollAnim,
-          snap: {
-              snapTo: "labels",
-              duration: 0.3,
-              delay: 0.1,
-              ease: "power1.inOut"
-          }
-      });
 
-      // --- Other Animations ---
-      gsap.from(".anim-stagger", {
-        scrollTrigger: {
-          trigger: ".card-container",
-          start: "top 80%",
-        },
-        duration: 0.8, y: 50, opacity: 0, stagger: 0.2, ease: "power3.out"
-      });
-      
-      document.querySelectorAll('.card').forEach(card => {
-        card.addEventListener('mousemove', e => {
-          const rect = card.getBoundingClientRect();
-          const x = e.clientX - rect.left - rect.width / 2;
-          const y = e.clientY - rect.top - rect.height / 2;
-          gsap.to(card, {
-            rotationX: (y / rect.height) * -15, 
-            rotationY: (x / rect.width) * 15,
-            transformPerspective: 1000, ease: "power1.out", duration: 0.5
-          });
-        });
-        card.addEventListener('mouseleave', () => {
-          gsap.to(card, { rotationX: 0, rotationY: 0, ease: "power3.out", duration: 1 });
-        });
-      });a
+    // --- PRELOADER LEAF ANIMATION (FAST PILING) ---
+    function animatePreloaderLeaf(leaf) {
+        const fallDuration = gsap.utils.random(2.5, 4.5);
+        const startX = gsap.utils.random(-50, window.innerWidth + 50);
+        const endX = gsap.utils.random(0, window.innerWidth);
+        const rotation = gsap.utils.random(0, 360);
+        const endRotation = rotation + gsap.utils.random(-600, 600);
+        const startSize = gsap.utils.random(0.7, 1.5);
+        
+        // Make preloader leaves rest lower
+        const pileHeight = window.innerHeight - (gsap.utils.random(20, 120) * startSize); 
+
+        gsap.set(leaf, { x: startX, y: -150, scale: startSize, rotation: rotation, width: 55, height: 55 });
+        gsap.to(leaf, { y: pileHeight, x: endX, rotation: endRotation, duration: fallDuration, ease: "power1.in" });
     }
 
-    // --- PRELOADER LOGIC ---
-    window.onload = () => {
-        // All assets are loaded, now we can animate the preloader away
+    function createPreloaderLeaves() {
+        const container = document.querySelector('.preloader-leaves-container');
+        if (!container) return;
+        const numberOfLeaves = 85;
+        for (let i = 0; i < numberOfLeaves; i++) {
+            const leaf = document.createElement('div');
+            leaf.classList.add('preloader-leaf');
+            const randomImage = preloaderLeafImages[Math.floor(Math.random() * preloaderLeafImages.length)];
+            leaf.style.backgroundImage = `url('${randomImage}')`;
+            container.appendChild(leaf);
+            gsap.delayedCall(gsap.utils.random(0, 2.5), () => animatePreloaderLeaf(leaf));
+        }
+    }
+
+    // --- HERO LEAF ANIMATION (CONTINUOUS FALLING) ---
+    function animateHeroLeaf(leaf) {
+        const fallDuration = gsap.utils.random(10, 18);
+        const startX = gsap.utils.random(0, window.innerWidth);
+        const endX = startX + gsap.utils.random(-300, 300);
+        const rotation = gsap.utils.random(0, 360);
+        const startSize = gsap.utils.random(0.8, 1.8);
+        const swayAmount = gsap.utils.random(50, 120);
+
+        gsap.set(leaf, { x: startX, y: -100, rotation: rotation, scale: startSize, opacity: 1 });
+        gsap.to(leaf, { y: window.innerHeight + 150, x: endX, rotation: `+=${gsap.utils.random(180, 540)}`, duration: fallDuration, ease: "power1.in", onComplete: () => animateHeroLeaf(leaf) });
+        gsap.to(leaf, { x: `+=${gsap.utils.random(-swayAmount, swayAmount)}`, repeat: -1, yoyo: true, duration: gsap.utils.random(3, 5), ease: "sine.inOut" });
+    }
+
+    function createHeroLeaves() {
+        const container = document.querySelector('.leaves-container');
+        if (!container) return;
+        const numberOfLeaves = 15;
+        for (let i = 0; i < numberOfLeaves; i++) {
+            const leaf = document.createElement('div');
+            leaf.classList.add('leaf');
+            const randomImage = heroLeafImages[Math.floor(Math.random() * heroLeafImages.length)]; // Uses the updated heroLeafImages
+            leaf.style.backgroundImage = `url('${randomImage}')`;
+            container.appendChild(leaf);
+            animateHeroLeaf(leaf);
+        }
+    }
+
+    // --- MAIN SITE INITIALIZATION (CALLED AFTER PRELOADER) ---
+    function initSite() {
+        createHeroLeaves(); // Start hero leaves only after preloader is gone
+        const cursorOrb = document.querySelector('.cursor-orb');
+        const interactiveElements = document.querySelectorAll('.card, .btn, nav a, .logo-circle');
+        gsap.set(cursorOrb, { xPercent: -50, yPercent: -50 });
+        const pos = { x: window.innerWidth / 2, y: window.innerHeight / 2 };
+        const mouse = { x: pos.x, y: pos.y };
+        const speed = 0.1;
+        const xSet = gsap.quickSetter(cursorOrb, "x", "px");
+        const ySet = gsap.quickSetter(cursorOrb, "y", "px");
+        window.addEventListener("mousemove", e => { mouse.x = e.x; mouse.y = e.y; });
+        gsap.ticker.add(() => {
+            const dt = 1.0 - Math.pow(1.0 - speed, gsap.ticker.deltaRatio());
+            pos.x += (mouse.x - pos.x) * dt;
+            pos.y += (mouse.y - pos.y) * dt;
+            xSet(pos.x); ySet(pos.y);
+        });
+        interactiveElements.forEach(el => {
+            el.addEventListener('mouseenter', () => cursorOrb.classList.add('hovered'));
+            el.addEventListener('mouseleave', () => cursorOrb.classList.remove('hovered'));
+        });
+        const heroWords = gsap.utils.toArray(".hero-text-container h1");
+        const scrollAnim = gsap.timeline();
+        heroWords.forEach((word, index) => {
+            scrollAnim.add(`word-${index}-start`).fromTo(word, { opacity: 0, y: 40 }, { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" }).to(word, { opacity: 0, y: -40, duration: 0.5, ease: "power2.in" }, "+=0.7");
+        });
+        ScrollTrigger.create({ trigger: ".hero-image-section", start: "top top", end: "+=300%", pin: true, scrub: 1, animation: scrollAnim, snap: { snapTo: "labels", duration: 0.3, delay: 0.1, ease: "power1.inOut" } });
+        gsap.from(".anim-stagger", { scrollTrigger: { trigger: ".card-container", start: "top 80%" }, duration: 0.8, y: 50, opacity: 0, stagger: 0.2, ease: "power3.out" });
+        document.querySelectorAll('.card').forEach(card => {
+            card.addEventListener('mousemove', e => {
+                const rect = card.getBoundingClientRect();
+                const x = e.clientX - rect.left - rect.width / 2;
+                const y = e.clientY - rect.top - rect.height / 2;
+                gsap.to(card, { rotationX: (y / rect.height) * -15, rotationY: (x / rect.width) * 15, transformPerspective: 1000, ease: "power1.out", duration: 0.5 });
+            });
+            card.addEventListener('mouseleave', () => { gsap.to(card, { rotationX: 0, rotationY: 0, ease: "power3.out", duration: 1 }); });
+        });
+    }
+
+    // --- EXECUTION FLOW ---
+    createPreloaderLeaves(); // Start preloader leaves instantly
+    window.addEventListener('load', () => {
         const preloader = document.querySelector('.preloader');
         gsap.to(preloader, {
-            y: "-100%", // Slide up
+            y: "-100%",
             duration: 1.2,
             ease: "power2.inOut",
-            delay: 0.5, // Wait for 0.5s before animating
+            delay: 2.0, // REQUIRED 2-SECOND WAIT after page load
             onComplete: () => {
-                // Completely hide the preloader after animation
                 preloader.style.display = 'none';
+                initSite(); // Initialize main site animations after preloader is gone
             }
         });
+    });
 
-        // Initialize all the site's main animations
-        initSite();
-    };
-  </script>
-
-  <script>
     document.getElementById("menu-toggle").addEventListener("click", () => {
-      document.getElementById("nav-links").classList.toggle("active");
+        document.getElementById("nav-links").classList.toggle("active");
     });
   </script>
 </body>
