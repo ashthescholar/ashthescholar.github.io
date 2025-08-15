@@ -392,7 +392,7 @@
 
     // --- PRELOADER LEAF ANIMATION (CONTINUOUS FALLING) ---
     function animatePreloaderLeaf(leaf) {
-        const fallDuration = gsap.utils.random(3, 5); // A bit faster for a preloader
+        const fallDuration = gsap.utils.random(2, 3); // A bit faster for a preloader
         const startX = gsap.utils.random(-50, window.innerWidth + 50);
         const endX = startX + gsap.utils.random(-200, 200);
         const rotation = gsap.utils.random(0, 360);
@@ -502,7 +502,7 @@
     window.addEventListener('load', () => {
         const preloader = document.querySelector('.preloader');
         gsap.to(preloader, {
-            y: "-100%",
+            y: "100%",
             duration: 1.2,
             ease: "power2.inOut",
             delay: 2.0,
