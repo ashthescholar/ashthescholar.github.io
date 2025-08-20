@@ -1,2 +1,2 @@
 # cuberootinc.tech
-website for a company.
+The Official Website for [cuberootinc.tech](cuberootinc.tech)
